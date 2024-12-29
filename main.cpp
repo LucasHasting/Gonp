@@ -27,7 +27,7 @@ int main(int argc, char const *argv[])
     gameMap->addStage(1, 'N');
     gameMap->addStage(1, 'W');
     gameMap->addStage(1, 'E');
-    //gameMap->addStage(2, 'E'); has seg fault, will figure out later
+    gameMap->addStage(2, 'E'); 
 
     //GAME START
     while (window->isOpen())
