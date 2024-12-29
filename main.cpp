@@ -24,10 +24,10 @@ int main(int argc, char const *argv[])
 
     //Create game map
     std::unique_ptr<Map> gameMap = std::make_unique<Map>();
-    gameMap->addStage();
-    gameMap->addStage();
-    gameMap->addStage();
-    gameMap->addStage();
+    gameMap->addStage(1, 'N');
+    gameMap->addStage(1, 'W');
+    gameMap->addStage(1, 'E');
+    //gameMap->addStage(2, 'E'); has seg fault, will figure out later
 
     //GAME START
     while (window->isOpen())
@@ -54,12 +54,30 @@ int main(int argc, char const *argv[])
             should_sleep = true;
         }
 
+        if (Keyboard::isKeyPressed(sf::Keyboard::Up))
+        {
+            gameMap->traverseUp();
+            should_sleep = true;
+        }
+
+        if (Keyboard::isKeyPressed(sf::Keyboard::Down))
+        {
+            gameMap->traverseDown();
+            should_sleep = true;
+        }
+
+        if (Keyboard::isKeyPressed(sf::Keyboard::Left))
+        {
+            gameMap->traverseLeft();
+            should_sleep = true;
+        }
+
         //set position of camera
         camera.setCenter(gameMap->getCurrentStagePos());
         window->setView(camera);
 
         //draw the current screen
-        gameMap->drawMap(window);
+        gameMap->drawMap(window, gameMap->getCurrentStage(), 'X');
 
         //display the screen
         window->display();
