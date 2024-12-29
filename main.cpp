@@ -2,7 +2,7 @@
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <unistd.h>
-#include "Map.h"
+#include "class_headers/Map.h"
 
 const   int     MICRO     = 1000000;
 const   double  FPS       = (1/30) * (MICRO);
