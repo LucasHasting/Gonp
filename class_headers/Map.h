@@ -13,7 +13,7 @@ class Stage{
         std::shared_ptr<Stage> down = nullptr;
         std::shared_ptr<Stage> left = nullptr;
         std::shared_ptr<Stage> right = nullptr;
-        bool is_drawn = false;
+        bool isDrawn = false;
         std::unique_ptr<Sprite> stageSprite = nullptr;
         int stageNumber = -1;
 };
@@ -37,6 +37,7 @@ class Map{
         void traverseUp();
         void traverseDown();
         void traverseLeft();
+        void drawSurrounding();
 };
 
 #endif

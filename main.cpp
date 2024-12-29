@@ -72,6 +72,12 @@ int main(int argc, char const *argv[])
             should_sleep = true;
         }
 
+        if (Keyboard::isKeyPressed(sf::Keyboard::Z))
+        {
+            gameMap->drawSurrounding();
+            should_sleep = true;
+        }
+
         //set position of camera
         camera.setCenter(gameMap->getCurrentStagePos());
         window->setView(camera);

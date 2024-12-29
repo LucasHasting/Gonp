@@ -24,7 +24,8 @@ Map::Map(){
     stageList = std::make_shared<Stage>();
     currentStage = stageList;
     currentStage->stageNumber = ++max_stage_number;
-    stageList->stageSprite = getSprite(stageSpriteName);
+    currentStage->stageSprite = getSprite(stageSpriteName);
+    currentStage->isDrawn = true;
 }
 
 void Map::drawMap(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<Stage> stageTraversal, char previousDirection){
@@ -89,8 +90,9 @@ void Map::drawMap(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<Stag
             };
     }
 
-    //draw each sprite
-    window->draw(*(stageTraversal->stageSprite));
+    if(stageTraversal->isDrawn)
+        //draw each sprite is it can be drawn
+        window->draw(*(stageTraversal->stageSprite));
 }
 
 //go right if a connection exists
@@ -129,6 +131,21 @@ Vector2f Map::getCurrentStagePos(){
 //get the current stage
 std::shared_ptr<Stage> Map::getCurrentStage(){
     return currentStage;
+}
+
+void Map::drawSurrounding(){
+    if(currentStage->up != nullptr && !currentStage->up->isDrawn){
+        currentStage->up->isDrawn = true;
+    }
+    if(currentStage->down != nullptr && !currentStage->down->isDrawn){
+        currentStage->down->isDrawn = true;
+    }
+    if(currentStage->left != nullptr && !currentStage->left->isDrawn){
+        currentStage->left->isDrawn = true;
+    }
+    if(currentStage->right != nullptr && !currentStage->right->isDrawn){
+        currentStage->right->isDrawn = true;
+    }
 }
 
 //add a stage going both directions from stageNumber in the direction passed in if possible
