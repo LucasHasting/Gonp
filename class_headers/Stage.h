@@ -2,7 +2,7 @@
 #define STAGE_H
 
 #include <SFML/Graphics/Sprite.hpp>
-#include "../class_headers/NewSprite.h"
+#include "NewSprite.h"
 
 using namespace sf;
 

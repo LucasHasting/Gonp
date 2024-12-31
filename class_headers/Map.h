@@ -3,8 +3,9 @@
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <memory>
-#include "../class_headers/NewSprite.h"
-#include "../class_headers/Stage.h"
+#include "NewSprite.h"
+#include "Stage.h"
+#include <string>
 
 using namespace sf;
 
