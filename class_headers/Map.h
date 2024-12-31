@@ -1,30 +1,23 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <memory>
+#include "../class_headers/NewSprite.h"
+#include "../class_headers/Stage.h"
 
 using namespace sf;
 
-class Stage{
-    public:
-        std::shared_ptr<Stage> up = nullptr;
-        std::shared_ptr<Stage> down = nullptr;
-        std::shared_ptr<Stage> left = nullptr;
-        std::shared_ptr<Stage> right = nullptr;
-        bool isDrawn = false;
-        std::unique_ptr<Sprite> stageSprite = nullptr;
-        int stageNumber = -1;
-};
-
 class Map{
     private:
+        const int SPRITE_SHIFT = 100;
+        const int TRAIL_SHIFT = 50;
         std::string spriteLocation = "sprites/map/";
         std::string stageSpriteName = spriteLocation + "stage.png";
+        std::string stageTrailName = spriteLocation + "stageTrail.png";
         std::shared_ptr<Stage> currentStage = nullptr;
         std::shared_ptr<Stage> stageList = nullptr;
-        std::unique_ptr<Sprite> getSprite(std::string);
+        std::unique_ptr<NewSprite> getSprite(std::string);
         int max_stage_number = 0;
     public:
         Map();

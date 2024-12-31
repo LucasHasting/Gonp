@@ -1,19 +1,24 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Color.hpp>
 #include <memory>
 
 #include "../class_headers/Map.h"
+#include "../class_headers/NewSprite.h"
+#include "../class_headers/Stage.h"
 
 using namespace sf;
 
-std::unique_ptr<Sprite> Map::getSprite(std::string spriteName){
+std::unique_ptr<NewSprite> Map::getSprite(std::string spriteName){
+    std::unique_ptr<NewSprite> sprite = std::make_unique<NewSprite>();
+    
     //Sprite and Texture declarations
-    std::unique_ptr<Texture> texture = std::make_unique<Texture>();
-    if(!(texture->loadFromFile(spriteName))) {
+    sprite->texture = std::make_unique<Texture>();
+    if(!(sprite->texture->loadFromFile(spriteName))) {
         exit(1);
     }
 
-    std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>(*texture);
+    sprite->sprite = std::make_unique<Sprite>(*(sprite->texture));
 
     //return the sprite using the texture
     return sprite;
@@ -25,6 +30,7 @@ Map::Map(){
     currentStage = stageList;
     currentStage->stageNumber = ++max_stage_number;
     currentStage->stageSprite = getSprite(stageSpriteName);
+    currentStage->stageTrail = getSprite(stageTrailName);
     currentStage->isDrawn = true;
 }
 
@@ -90,42 +96,66 @@ void Map::drawMap(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<Stag
             };
     }
 
-    if(stageTraversal->isDrawn)
+    if(stageTraversal->isDrawn){
         //draw each sprite is it can be drawn
-        window->draw(*(stageTraversal->stageSprite));
+        window->draw(*(stageTraversal->stageSprite->sprite));
+
+        if(stageTraversal->stageNumber != 1)
+            window->draw(*(stageTraversal->stageTrail->sprite));
+    }else{
+        //draw each sprite at lower opacity if it cannot be drawn
+        Color colorA(stageTraversal->stageSprite->sprite->getColor());
+        Color colorB(stageTraversal->stageTrail->sprite->getColor());
+
+        colorA.a = 155;
+        colorB.a = 155;
+
+        stageTraversal->stageSprite->sprite->setColor(colorA);
+        stageTraversal->stageTrail->sprite->setColor(colorB);
+        
+        window->draw(*(stageTraversal->stageSprite->sprite));
+        window->draw(*(stageTraversal->stageTrail->sprite));
+
+        //set the color back to original opacity
+        colorA.a = 255;
+        colorB.a = 255;
+        
+        stageTraversal->stageSprite->sprite->setColor(colorA);
+        stageTraversal->stageTrail->sprite->setColor(colorB);
+    }
 }
 
 //go right if a connection exists
 void Map::traverseRight(){
-    if(currentStage->right != nullptr)
+    if(currentStage->right != nullptr && currentStage->right->isDrawn)
         currentStage = currentStage->right;
     return;
 }
 
 //go up if a connection exists
 void Map::traverseUp(){
-    if(currentStage->up != nullptr)
+    if(currentStage->up != nullptr && currentStage->up->isDrawn)
         currentStage = currentStage->up;
     return;
 }
 
 //go down if a connection exists
 void Map::traverseDown(){
-    if(currentStage->down != nullptr)
+    if(currentStage->down != nullptr && currentStage->down->isDrawn)
         currentStage = currentStage->down;
     return;
 }
 
 //go left if a connection exists
 void Map::traverseLeft(){
-    if(currentStage->left != nullptr)
+    if(currentStage->left != nullptr && currentStage->left->isDrawn)
         currentStage = currentStage->left;
     return;
 }
 
 //get the current stage position
 Vector2f Map::getCurrentStagePos(){
-    return currentStage->stageSprite->getPosition();
+    return currentStage->stageSprite->sprite->getPosition();
 }
 
 //get the current stage
@@ -158,7 +188,7 @@ void Map::addStage(int stageNumber, char direction){
         return;
     
     //get the position of stage at stageNumber
-    Vector2f previousPos = previousStage->stageSprite->getPosition();
+    Vector2f previousPos = previousStage->stageSprite->sprite->getPosition();
 
     //add the stage based on direction, see N for comments on each case
     switch(direction){
@@ -181,8 +211,10 @@ void Map::addStage(int stageNumber, char direction){
             
             //get the sprite and set it's position
             previousStage->stageSprite = getSprite(stageSpriteName);
-            previousStage->stageSprite->setPosition(previousPos.x, previousPos.y - 60);
-            
+            previousStage->stageTrail = getSprite(stageTrailName);
+
+            previousStage->stageSprite->sprite->setPosition(previousPos.x, previousPos.y - SPRITE_SHIFT);
+            previousStage->stageTrail->sprite->setPosition(previousPos.x, previousPos.y - TRAIL_SHIFT);
             break;
         case 'E':
             //same as N
@@ -193,7 +225,9 @@ void Map::addStage(int stageNumber, char direction){
             previousStage = previousStage->right;
             previousStage->stageNumber = ++max_stage_number;
             previousStage->stageSprite = getSprite(stageSpriteName);
-            previousStage->stageSprite->setPosition(previousPos.x + 60, previousPos.y);
+            previousStage->stageTrail = getSprite(stageTrailName);
+            previousStage->stageSprite->sprite->setPosition(previousPos.x + SPRITE_SHIFT, previousPos.y);
+            previousStage->stageTrail->sprite->setPosition(previousPos.x + TRAIL_SHIFT, previousPos.y);
             break;
         case 'S':
             //same as N
@@ -204,7 +238,9 @@ void Map::addStage(int stageNumber, char direction){
             previousStage = previousStage->down;
             previousStage->stageNumber = ++max_stage_number;
             previousStage->stageSprite = getSprite(stageSpriteName);
-            previousStage->stageSprite->setPosition(previousPos.x, previousPos.y + 60);
+            previousStage->stageTrail = getSprite(stageTrailName);
+            previousStage->stageSprite->sprite->setPosition(previousPos.x, previousPos.y + SPRITE_SHIFT);
+            previousStage->stageTrail->sprite->setPosition(previousPos.x, previousPos.y + TRAIL_SHIFT);
             break;
         case 'W':
             //same as N
@@ -215,7 +251,9 @@ void Map::addStage(int stageNumber, char direction){
             previousStage = previousStage->left;
             previousStage->stageNumber = ++max_stage_number;
             previousStage->stageSprite = getSprite(stageSpriteName);
-            previousStage->stageSprite->setPosition(previousPos.x - 60, previousPos.y);
+            previousStage->stageTrail = getSprite(stageTrailName);
+            previousStage->stageSprite->sprite->setPosition(previousPos.x - SPRITE_SHIFT, previousPos.y);
+            previousStage->stageTrail->sprite->setPosition(previousPos.x - TRAIL_SHIFT, previousPos.y);
             break;
         default:
             break;
