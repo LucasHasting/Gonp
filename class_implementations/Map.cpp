@@ -2,10 +2,12 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <memory>
+#include <unistd.h>
 
 #include "../class_headers/Map.h"
 #include "../class_headers/NewSprite.h"
 #include "../class_headers/Stage.h"
+#include "../class_headers/GameConstants.h"
 
 using namespace sf;
 
@@ -32,6 +34,56 @@ Map::Map(){
     currentStage->stageSprite = getSprite(stageSpriteName);
     currentStage->stageTrail = getSprite(stageTrailName);
     currentStage->isDrawn = true;
+}
+
+void Map::driver(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<View> camera){
+    //will be replaced with animations later
+    bool should_sleep = false;
+
+    //move
+    if (Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        traverseRight();
+        should_sleep = true;
+    }
+
+    if (Keyboard::isKeyPressed(sf::Keyboard::Up))
+    {
+        traverseUp();
+        should_sleep = true;
+    }
+
+    if (Keyboard::isKeyPressed(sf::Keyboard::Down))
+    {
+        traverseDown();
+        should_sleep = true;
+    }
+
+    if (Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
+        traverseLeft();
+        should_sleep = true;
+    }
+
+    if (Keyboard::isKeyPressed(sf::Keyboard::Z))
+    {
+        drawSurrounding();
+        should_sleep = true;
+    }
+
+    //set position of camera
+    camera->setCenter(getCurrentStagePos());
+    window->setView(*camera);
+
+    //draw the current screen
+    drawMap(window, getCurrentStage(), 'X');
+
+    //display the screen
+    window->display();
+
+    if(should_sleep){
+        usleep(0.2 * MICRO);
+    }
 }
 
 void Map::drawMap(std::shared_ptr<sf::RenderWindow> window, std::shared_ptr<Stage> stageTraversal, char previousDirection){

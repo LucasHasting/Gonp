@@ -10,8 +10,6 @@ using namespace sf;
 
 class Map{
     private:
-        const int SPRITE_SHIFT = 100;
-        const int TRAIL_SHIFT = 50;
         std::string spriteLocation = "sprites/map/";
         std::string stageSpriteName = spriteLocation + "stage.png";
         std::string stageTrailName = spriteLocation + "stageTrail.png";
@@ -21,6 +19,7 @@ class Map{
         int max_stage_number = 0;
     public:
         Map();
+        void driver(std::shared_ptr<sf::RenderWindow>, std::shared_ptr<View>);
         void drawMap(std::shared_ptr<sf::RenderWindow>, std::shared_ptr<Stage>, char);
         std::shared_ptr<Stage> searchStage(std::shared_ptr<Stage>, int, char);
         void addStage(int, char);

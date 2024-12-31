@@ -3,12 +3,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <unistd.h>
 #include "class_headers/Map.h"
-
-const   int     MICRO     = 1000000;
-const   double  FPS       = (1/30) * (MICRO);
-const   int     WIDTH     = 640;
-const   int     HEIGHT    = 480;
-const   char    TITLE[5]  = "Gonp";
+#include "class_headers/GameConstants.h"
 
 using namespace sf;
 
@@ -18,9 +13,9 @@ int main(int argc, char const *argv[])
     std::shared_ptr<RenderWindow> window = std::make_shared<RenderWindow>(sf::VideoMode(WIDTH,HEIGHT), TITLE);
 
     //Create and set camera
-    sf::View camera(sf::FloatRect(WIDTH, WIDTH, HEIGHT, HEIGHT));
-    camera.setCenter(0.f, 0.f);
-    window->setView(camera);
+    std::shared_ptr<View> camera = std::make_shared<View>(FloatRect(WIDTH, WIDTH, HEIGHT, HEIGHT));
+    camera->setCenter(0.f, 0.f);
+    window->setView(*camera);
 
     //Create game map
     std::unique_ptr<Map> gameMap = std::make_unique<Map>();
@@ -32,9 +27,6 @@ int main(int argc, char const *argv[])
     //GAME START
     while (window->isOpen())
     {
-        //will be replaced with animations later
-        bool should_sleep = false;
-
         //check to close the game
         sf::Event event;
         while (window->pollEvent(event))
@@ -47,50 +39,7 @@ int main(int argc, char const *argv[])
         //clear the screen
         window->clear();
 
-        //move
-        if (Keyboard::isKeyPressed(sf::Keyboard::Right))
-        {
-            gameMap->traverseRight();
-            should_sleep = true;
-        }
-
-        if (Keyboard::isKeyPressed(sf::Keyboard::Up))
-        {
-            gameMap->traverseUp();
-            should_sleep = true;
-        }
-
-        if (Keyboard::isKeyPressed(sf::Keyboard::Down))
-        {
-            gameMap->traverseDown();
-            should_sleep = true;
-        }
-
-        if (Keyboard::isKeyPressed(sf::Keyboard::Left))
-        {
-            gameMap->traverseLeft();
-            should_sleep = true;
-        }
-
-        if (Keyboard::isKeyPressed(sf::Keyboard::Z))
-        {
-            gameMap->drawSurrounding();
-            should_sleep = true;
-        }
-
-        //set position of camera
-        camera.setCenter(gameMap->getCurrentStagePos());
-        window->setView(camera);
-
-        //draw the current screen
-        gameMap->drawMap(window, gameMap->getCurrentStage(), 'X');
-
-        //display the screen
-        window->display();
-
-        if(should_sleep){
-            usleep(0.25 * MICRO);
-        }
+        gameMap->driver(window, camera);
 
         //set the FPS
         usleep(FPS);
